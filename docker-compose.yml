@@ -3,9 +3,9 @@ services:
     image: postgres:15
     container_name: ecommerce_db
     environment:
-      POSTGRES_USER: ecommerce_user
-      POSTGRES_PASSWORD: mypassword123
-      POSTGRES_DB: ecommerce
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -16,7 +16,12 @@ services:
       context: ./product_service
     container_name: ecommerce_api
     environment:
-      DATABASE_URL: postgresql://ecommerce_user:mypassword123@db:5432/ecommerce
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+
     ports:
       - "8000:8000"
     depends_on:
