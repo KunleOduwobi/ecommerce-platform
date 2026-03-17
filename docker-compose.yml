@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:15
+    container_name: ecommerce_db
+    environment:
+      POSTGRES_USER: ecommerce_user
+      POSTGRES_PASSWORD: mypassword123
+      POSTGRES_DB: ecommerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./product_service
+    container_name: ecommerce_api
+    environment:
+      DATABASE_URL: postgresql://ecommerce_user:mypassword123@db:5432/ecommerce
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
