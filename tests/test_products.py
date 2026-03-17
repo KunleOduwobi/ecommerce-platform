@@ -7,11 +7,11 @@ BASE_URL = "http://127.0.0.1:8000"
 def test_create_product():
     response = httpx.post(
         f"{BASE_URL}/products",
-        json={"name": "Tablet", "price": 500}
+        json={"name": "Phone", "price": 600}
     )
 
     assert response.status_code == 200
-    assert response.json()["name"] == "Tablet"
+    assert response.json()["name"] == "Phone"
 
     conn = psycopg2.connect(
         dbname="ecommerce",
