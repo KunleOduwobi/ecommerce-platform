@@ -1,8 +1,7 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from .database import SessionLocal
-from .models import Product, Base
-from .database import engine
+from .database import SessionLocal, engine, Base
+from .models import Product
 
 
 app = FastAPI()
@@ -18,7 +17,7 @@ def get_db():
     finally:
         db.close()
 
-
+# API endpoints now interact with the database
 @app.post("/products")
 def create_product(product: dict, db: Session = Depends(get_db)):
     db_product = Product(name=product["name"], price=product["price"])
