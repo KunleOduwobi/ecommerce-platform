@@ -1,40 +1,41 @@
-import httpx
-import psycopg2
+import importlib
 
-BASE_URL = "http://127.0.0.1:8000"
+from fastapi.testclient import TestClient
 
+#  This test assumes that the PostgreSQL container is running and accessible at the URL specified in the DATABASE_URL environment variable.
+def test_create_product(postgres_container):
+    # Import only after DATABASE_URL is set by the fixture
+    import product_service.app.database as database
+    import product_service.app.main as main
 
-def test_create_product():
-    response = httpx.post(
-        f"{BASE_URL}/products",
-        json={"name": "Phone", "price": 600}
+    importlib.reload(database)
+    importlib.reload(main)
+
+#   Create the database tables
+    database.Base.metadata.create_all(bind=database.engine)
+
+# 
+    client = TestClient(main.app)
+
+#   Create a new product
+    response = client.post(
+        "/products",
+        json={"name": "Phone", "price": 800}
     )
 
+#   Verify the response
     assert response.status_code == 200
-    assert response.json()["name"] == "Phone"
+    body = response.json()
+    assert body["name"] == "Phone"
+    assert body["price"] == 800
 
-    conn = psycopg2.connect(
-        dbname="ecommerce",
-        user="ecommerce_user",
-        password="mypassword123",
-        host="localhost"
-    )
-
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "SELECT name FROM products WHERE name='Phone'"
-    )
-
-    result = cursor.fetchone()
-
-    assert result[0] == "Phone"
-
-    conn.close()
+#  Verify the product is in the database
+    db = database.SessionLocal()
+    try:
+        product_in_db = db.query(main.Product).filter_by(name="Phone").first()
+        assert product_in_db is not None
+        assert product_in_db.price == 800
+    finally:
+        db.close()
 
 
-
-# def test_get_products():
-#     response = httpx.get(f"{BASE_URL}/products")
-
-#     assert response.status_code == 200
