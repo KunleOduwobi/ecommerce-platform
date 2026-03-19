@@ -19,9 +19,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: product_service/requirements.txt
 
-      - name: Show Docker version
-        run: docker --version
+
+      - name: Docker info
+        run: |
+          docker --version
+          docker info
+
 
       - name: Install dependencies
         run: |
